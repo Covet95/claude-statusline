@@ -1,0 +1,16 @@
+{
+  "model": {"display_name": "Claude Opus 4.1"},
+  "workspace": {"current_dir": "/tmp/My Project"},
+  "context_window": {
+    "used_percentage": 91,
+    "total_input_tokens": 950000,
+    "context_window_size": 1000000
+  },
+  "cost": {
+    "total_cost_usd": 12.345,
+    "total_duration_ms": 3661000,
+    "total_api_duration_ms": 2000
+  },
+  "thinking": {"enabled": true},
+  "effort": {"level": "xhigh"}
+}
