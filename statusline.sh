@@ -5,13 +5,14 @@
 input=$(cat)
 
 # Parse all fields via one python call (faster than multiple)
-IFS=$'\t' read -r model cwd git_dir ctx_pct in_tok ctx_size cost dur_ms api_ms thinking effort <<< "$(
+IFS=$'\t' read -r model cwd git_dir ctx_pct in_tok ctx_size cost dur_ms api_ms thinking effort ver <<< "$(
   echo "$input" | python3 -c "
 import sys, json, os
 try:
     d = json.load(sys.stdin)
     m = d.get('model', {}).get('display_name', '?')
     m = m.replace('Claude ', '').replace(' (1M context)', '[1M]')
+    ver = d.get('version', '') or '?'
     cwd_raw = d.get('workspace', {}).get('current_dir') or d.get('cwd', '')
     cwd = os.path.basename(cwd_raw) or '~'
     ctx = d.get('context_window', {}) or {}
@@ -23,9 +24,9 @@ try:
     api_ms = d.get('cost', {}).get('total_api_duration_ms', 0)
     thinking = '1' if d.get('thinking', {}).get('enabled') else '0'
     effort = d.get('effort', {}).get('level', '') or '-'
-    print('\t'.join(map(str, [m, cwd, cwd_raw or '.', int(ctx_pct), in_tok, ctx_size, f'{cost_usd:.2f}', dur_ms, api_ms, thinking, effort])))
+    print('\t'.join(map(str, [m, cwd, cwd_raw or '.', int(ctx_pct), in_tok, ctx_size, f'{cost_usd:.2f}', dur_ms, api_ms, thinking, effort, ver])))
 except Exception:
-    print('\t'.join(map(str, ['?', '?', '.', 0, 0, 0, '0.00', 0, 0, 0, '-'])))
+    print('\t'.join(map(str, ['?', '?', '.', 0, 0, 0, '0.00', 0, 0, 0, '-', '?'])))
 "
 )"
 
@@ -112,7 +113,7 @@ time=$(date +"%H:%M")
 # ---- Render powerline segments ----
 out=""
 # Segment 1: model + effort
-out+="$(fg 255)$(bg $C_MODEL) ● ${model}${badge} "
+out+="$(fg 255)$(bg $C_MODEL) ● ${model}${badge} $(fg 250)v${ver} "
 # transition model -> dir
 out+="$(fg $C_MODEL)$(bg $C_DIR)${SEP}"
 # Segment 2: cwd (+ branch + dirty)
